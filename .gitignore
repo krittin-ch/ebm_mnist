@@ -1,0 +1,5 @@
+*.pt
+others/*
+__pycache__/*
+*.gz
+*ubyte
