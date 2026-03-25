@@ -1,15 +1,18 @@
-from tqdm import tqdm
-
+import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
-
 from sklearn.manifold import TSNE
 
-from ebm_modules import Backbone
 
+
+from torch.utils.data import DataLoader
+
+from torchvision import datasets, transforms
+from tqdm import tqdm
+
+
+
+from ebm_modules import Backbone
 
 # -----------------------
 # Device

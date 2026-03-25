@@ -1,7 +1,8 @@
 import os
-from tqdm import tqdm
-import torch.nn as nn
+
 import torch
+import torch.nn as nn
+from tqdm import tqdm
 
 
 def train_ssl(

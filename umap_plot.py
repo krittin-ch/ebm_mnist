@@ -1,11 +1,10 @@
-from tqdm import tqdm
-
-import umap
 import matplotlib.pyplot as plt
 import torch
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
 import torch.nn.functional as F
+import umap
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+from tqdm import tqdm
 
 from ebm_modules import Backbone
 

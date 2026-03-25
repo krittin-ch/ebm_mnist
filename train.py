@@ -1,13 +1,16 @@
+import argparse
 import os
-import torchvision.transforms.v2 as T
-from ebm_modules import Backbone, ClassificationHead, ProjectionHead, LinearProbe
+
 import torch
 import torch.nn as nn
-from torchvision import datasets
+import torchvision.transforms.v2 as T
 from torch.utils.data import DataLoader
-from tools import *
-import argparse
+from torchvision import datasets
 from tqdm import tqdm
+
+from ebm_modules import (Backbone, ClassificationHead, LinearProbe,
+                         ProjectionHead)
+from tools import *
 
 
 def parse_config():
