@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 def train_ssl(
     encoder,
-    # predictor,
     target_model,
     train_loader,
     optimizer_func,
@@ -19,28 +18,25 @@ def train_ssl(
     save_interval,
     scheduler,
 ):
+    """Train encoder using self-supervised learning with EMA target."""
     os.makedirs(save_path, exist_ok=True)
 
     ema = 0.99
 
     encoder.to(device)
-    # predictor.to(device)
     target_model.to(device)
 
     encoder.train()
-    # predictor.train()
     target_model.eval()
 
-    # Freeze target model
+    # -- freeze target model
     for p in target_model.parameters():
         p.requires_grad = False
 
-    # optimizer = optimizer_func(
-    #     list(encoder.parameters()) + list(predictor.parameters()), lr=1e-4
-    # )
     optimizer = optimizer_func(encoder.parameters(), lr=1e-4)
 
     if scheduler:
+        # -- cosine LR scheduler
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             optimizer, T_max=epochs, eta_min=1e-5
         )
@@ -50,17 +46,15 @@ def train_ssl(
         epoch_loss = 0
 
         for img, _ in process_bar:
+            # -- two augmented views
             img1 = transform(img)
             img2 = transform(img)
 
             img1 = img1.to(device)
             img2 = img2.to(device)
 
-            # Online network
-            # x = predictor(encoder(img1))
             x = encoder(img1)
 
-            # Target network (no grad)
             with torch.no_grad():
                 y = target_model(img2)
 
@@ -71,7 +65,7 @@ def train_ssl(
             loss.backward()
             optimizer.step()
 
-            # EMA update
+            # -- EMA update
             with torch.no_grad():
                 for o, t in zip(encoder.parameters(), target_model.parameters()):
                     t.data.mul_(ema).add_(o.data, alpha=1 - ema)
@@ -87,10 +81,10 @@ def train_ssl(
             scheduler.step()
 
         if (epoch + 1) % save_interval == 0:
+            # -- save target encoder
             torch.save(
                 {
-                    "encoder": target_model.state_dict(),  # we use only target model, so we consider it as future encoder
-                    # "predictor": predictor.state_dict(),
+                    "encoder": target_model.state_dict(),
                 },
                 f"{save_path}/model-{epoch+1}.pt",
             )
@@ -109,6 +103,7 @@ def train_linear_probe(
     save_interval,
     scheduler,
 ):
+    """Train linear classifier on frozen encoder."""
     os.makedirs(save_path, exist_ok=True)
 
     encoder.to(device)
@@ -117,6 +112,7 @@ def train_linear_probe(
     optimizer = optimizer_func(linear_probe.parameters(), lr=1e-4)
 
     encoder.eval()
+    # -- freeze encoder
     for p in encoder.parameters():
         p.requires_grad = False
 
@@ -159,6 +155,7 @@ def train_linear_probe(
             scheduler.step()
 
         if (epoch + 1) % save_interval == 0:
+            # -- save probe + encoder
             torch.save(
                 {
                     "encoder": encoder.state_dict(),
@@ -170,6 +167,7 @@ def train_linear_probe(
 
 
 def test_linear_probe(encoder, linear_probe, test_loader, device):
+    """Evaluate linear probe accuracy."""
     encoder.to(device)
     linear_probe.to(device)
 
@@ -212,6 +210,7 @@ def train_supervised(
     save_interval,
     scheduler=False,
 ):
+    """Train encoder and classifier jointly (supervised)."""
     os.makedirs(save_path, exist_ok=True)
 
     encoder.to(device)
@@ -257,6 +256,7 @@ def train_supervised(
             scheduler.step()
 
         if (epoch + 1) % save_interval == 0:
+            # -- save model
             torch.save(
                 {
                     "encoder": encoder.state_dict(),
@@ -268,6 +268,7 @@ def train_supervised(
 
 
 def test_supervised(encoder, classifier, test_loader, device):
+    """Evaluate supervised model."""
     encoder.to(device)
     classifier.to(device)
 
