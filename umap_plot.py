@@ -12,7 +12,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # -- load pretrained encoder
 model = Backbone()
-model_states = torch.load("weights_ssl/model-100.pt", map_location=device)
+# model_states = torch.load("weights_ssl/model-300.pt", map_location=device)
+model_states = torch.load("weights_supervised/model-50.pt", map_location=device)
 model.load_state_dict(model_states["encoder"])
 model.to(device)
 model.eval()
