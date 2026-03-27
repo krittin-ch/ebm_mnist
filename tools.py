@@ -18,9 +18,10 @@ def train_ssl(
     save_interval,
     scheduler,
 ):
-    """Train encoder using self-supervised learning with EMA target."""
+    """Train encoder using self-supervised learning with EMA target. Inspired by I-JEPA"""
     os.makedirs(save_path, exist_ok=True)
 
+    # -- exponential moving average
     ema = 0.99
 
     encoder.to(device)

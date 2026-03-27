@@ -12,9 +12,16 @@ from ebm_modules import Backbone
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # -- load pretrained encoder
+model_mode = "weights_ssl"
+num_epoch = "300"
+
+# model_mode = "weights_supervised"
+# num_epoch = "50"
+
 model = Backbone()
-model_states = torch.load("weights_ssl/model-300.pt", map_location=device)
-# model_states = torch.load("weights_supervised/model-50.pt", map_location=device)
+model_states = torch.load(
+    model_mode + "/model-" + num_epoch + ".pt", map_location=device
+)
 model.load_state_dict(model_states["encoder"])
 model.to(device)
 model.eval()
@@ -73,8 +80,8 @@ plt.figure(figsize=(8, 6))
 scatter = plt.scatter(emb_2d[:, 0], emb_2d[:, 1], c=labels, cmap="tab10", s=5)
 
 plt.colorbar(scatter)
-plt.title("t-SNE of SSL Embeddings (MNIST)")
+# plt.title("t-SNE of SSL Embeddings (MNIST)")
 plt.xlabel("Dim 1")
 plt.ylabel("Dim 2")
-
+plt.savefig(f"tsne_{model_mode}_e{num_epoch}.png")
 plt.show()

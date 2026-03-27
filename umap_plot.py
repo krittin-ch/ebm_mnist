@@ -11,9 +11,16 @@ from ebm_modules import Backbone
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # -- load pretrained encoder
+model_mode = "weights_ssl"
+num_epoch = "300"
+
+# model_mode = "weights_supervised"
+# num_epoch = "50"
+
+model_states = torch.load(
+    model_mode + "/model-" + num_epoch + ".pt", map_location=device
+)
 model = Backbone()
-# model_states = torch.load("weights_ssl/model-300.pt", map_location=device)
-model_states = torch.load("weights_supervised/model-50.pt", map_location=device)
 model.load_state_dict(model_states["encoder"])
 model.to(device)
 model.eval()
@@ -67,5 +74,8 @@ scatter = plt.scatter(
 )
 
 plt.colorbar(scatter)
-plt.title("UMAP of SSL Embeddings")
+# plt.title("UMAP of SSL Embeddings")
+plt.xlabel("Dim 1")
+plt.ylabel("Dim 2")
+plt.savefig(f"umap_{model_mode}_e{num_epoch}.png")
 plt.show()
