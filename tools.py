@@ -1,3 +1,4 @@
+import csv
 import os
 
 import torch
@@ -5,6 +6,7 @@ import torch.nn as nn
 from tqdm import tqdm
 
 
+# -- self-supervised learning
 def train_ssl(
     encoder,
     target_model,
@@ -20,6 +22,11 @@ def train_ssl(
 ):
     """Train encoder using self-supervised learning with EMA target. Inspired by I-JEPA"""
     os.makedirs(save_path, exist_ok=True)
+    os.makedirs(save_path + "/weights", exist_ok=True)
+
+    with open(f"{save_path}/loss.csv", mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["epoch", "loss"])
 
     # -- exponential moving average
     ema = 0.99
@@ -87,9 +94,14 @@ def train_ssl(
                 {
                     "encoder": target_model.state_dict(),
                 },
-                f"{save_path}/model-{epoch+1}.pt",
+                f"{save_path}/weights/model-{epoch+1}.pt",
             )
             print(f"Model saved (epoch: {epoch + 1})")
+
+        avg_loss = epoch_loss / len(train_loader)
+        with open(f"{save_path}/loss.csv", mode="a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([epoch + 1, avg_loss])
 
 
 def train_linear_probe(
@@ -106,6 +118,11 @@ def train_linear_probe(
 ):
     """Train linear classifier on frozen encoder."""
     os.makedirs(save_path, exist_ok=True)
+    os.makedirs(save_path + "/weights", exist_ok=True)
+
+    with open(f"{save_path}/loss.csv", mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["epoch", "loss"])
 
     encoder.to(device)
     linear_probe.to(device)
@@ -162,9 +179,14 @@ def train_linear_probe(
                     "encoder": encoder.state_dict(),
                     "linear_probe": linear_probe.state_dict(),
                 },
-                f"weights_ssl_linear_probe/model-{epoch+1}.pt",
+                f"{save_path}/weights/model-{epoch+1}.pt",
             )
             print(f"Model saved (epoch: {epoch + 1})")
+
+        avg_loss = epoch_loss / len(train_loader)
+        with open(f"{save_path}/loss.csv", mode="a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([epoch + 1, avg_loss])
 
 
 def test_linear_probe(encoder, linear_probe, test_loader, device):
@@ -199,6 +221,7 @@ def test_linear_probe(encoder, linear_probe, test_loader, device):
     print(f"Acc: {100*correct/total:.2f}%")
 
 
+# -- supervised learning
 def train_supervised(
     encoder,
     classifier,
@@ -213,6 +236,11 @@ def train_supervised(
 ):
     """Train encoder and classifier jointly (supervised)."""
     os.makedirs(save_path, exist_ok=True)
+    os.makedirs(save_path + "/weights", exist_ok=True)
+
+    with open(f"{save_path}/loss.csv", mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["epoch", "loss"])
 
     encoder.to(device)
     classifier.to(device)
@@ -263,9 +291,14 @@ def train_supervised(
                     "encoder": encoder.state_dict(),
                     "classifier": classifier.state_dict(),
                 },
-                f"{save_path}/model-{epoch+1}.pt",
+                f"{save_path}/weights/model-{epoch+1}.pt",
             )
             print(f"Model saved (epoch: {epoch + 1})")
+
+        avg_loss = epoch_loss / len(train_loader)
+        with open(f"{save_path}/loss.csv", mode="a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([epoch + 1, avg_loss])
 
 
 def test_supervised(encoder, classifier, test_loader, device):

@@ -8,7 +8,9 @@ def parse_config():
     parser.add_argument("--name", "-n", type=str, help="your name")
     parser.add_argument("--year_of_birth", "-y", type=int, help="your birth year")
     parser.add_argument(
-        "--nectec", action="store_true", help="call this parser if you work at NECTEC"
+        "--nectec",
+        action="store_true",
+        help="call this parser if you work at NECTEC",  # action="store_true" only used for True/False
     )
 
     args = parser.parse_args()

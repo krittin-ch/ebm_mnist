@@ -7,11 +7,10 @@ import torch.nn as nn
 import torchvision.transforms.v2 as T
 from torch.utils.data import DataLoader
 from torchvision import datasets
-from tqdm import tqdm
 
-from ebm_modules import (Backbone, ClassificationHead, LinearProbe,
-                         ProjectionHead)
+from modules import Backbone, ClassificationHead, LinearProbe, SSLLoss
 from tools import *
+from vit import ViT
 
 
 def parse_config():
@@ -20,6 +19,7 @@ def parse_config():
 
     # -- training mode
     parser.add_argument("--ssl", action="store_true", help="activate SSL mode")
+    parser.add_argument("--vit", action="store_true", help="activate ViT for SSL")
     parser.add_argument(
         "--sup", action="store_true", help="activate supervised learning mode"
     )
@@ -103,12 +103,46 @@ def main():
 
     if args.ssl:
         # -- SSL models
-        encoder = Backbone(act_layer=act_layer)
-        predictor = ProjectionHead(act_layer=act_layer)
-        linear_probe = LinearProbe()
-
-        target_model = Backbone(act_layer=act_layer)
+        encoder = (
+            ViT(
+                image_size=28,
+                patch_size=7,  # 28/7 = 4 (4x4 patches)
+                num_classes=-1,  # we do SSL (no cls)
+                dim=64,
+                depth=3,
+                heads=4,
+                mlp_dim=128,
+                pool="mean",
+                channels=1,  # MNIST is grayscale (only 1 channel)
+                dim_head=64,
+                dropout=0.0,
+                emb_dropout=0.0,
+            )
+            if args.vit
+            else Backbone()
+        )
+        target_model = (
+            ViT(
+                image_size=28,
+                patch_size=7,
+                num_classes=-1,
+                dim=64,
+                depth=3,
+                heads=4,
+                mlp_dim=128,
+                pool="mean",
+                channels=1,
+                dim_head=64,
+                dropout=0.0,
+                emb_dropout=0.0,
+            )
+            if args.vit
+            else Backbone()
+        )
         target_model.load_state_dict(encoder.state_dict())
+
+        # -- adding probe (final supervised learning)
+        linear_probe = LinearProbe(input_dim=1024 if args.vit else 64)
 
         if args.train:
             train_ssl(
@@ -116,11 +150,11 @@ def main():
                 target_model=target_model,
                 train_loader=train_loader,
                 optimizer_func=torch.optim.Adam,
-                loss_func=encoder.contrastive_loss,
+                loss_func=SSLLoss().contrastive_loss,
                 device=device,
                 transform=mnist_transform,
                 epochs=args.epochs,
-                save_path="weights_ssl",
+                save_path="ssl_vit" if args.vit else "ssl",
                 save_interval=args.save_interval,
                 scheduler=args.scheduler,
             )
@@ -141,7 +175,7 @@ def main():
                 loss_func=nn.CrossEntropyLoss(),
                 device=device,
                 epochs=args.epochs,
-                save_path="weights_ssl_linear_probe",
+                save_path="ssl_vit_lp" if args.vit else "ssl_lp",
                 save_interval=args.save_interval,
                 scheduler=args.scheduler,
             )
@@ -179,22 +213,19 @@ def main():
                 loss_func=nn.CrossEntropyLoss(),
                 device=device,
                 epochs=args.epochs,
-                save_path="weights_supervised",
+                save_path="sup",
                 save_interval=args.save_interval,
                 scheduler=args.scheduler,
             )
 
         # -- testing supervised
         if args.test:
-            if args.train:
-                print("The model has just been trained. Using current parameters.")
-            else:
-                if os.path.exists(args.weight):
-                    model_states = torch.load(args.weight)
-                    encoder.load_state_dict(model_states["encoder"])
-                    classifier.load_state_dict(model_states["classifier"])
-                else:
-                    raise ValueError(f"The path '{args.weight}' does not exist.")
+            if not os.path.exists(args.weight):
+                raise ValueError(f"The path '{args.weight}' does not exist.")
+
+            model_states = torch.load(args.weight)
+            encoder.load_state_dict(model_states["encoder"])
+            classifier.load_state_dict(model_states["classifier"])
 
             test_supervised(
                 encoder=encoder,

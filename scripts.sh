@@ -1,17 +1,35 @@
 # !/bin/bash
 
-# train ssl encoder
-python run_model.py --shuffle --scheduler --epochs 300 --batch_size 1024 --save_interval 5  --ssl --train
+# -- supervised learning (conventional model training)
+# -- train
+python run_model.py --shuffle --scheduler --epochs 50 --batch_size 64 --save_interval 5 --sup --train
 
-# train linear probe (SSL -> SL)
-# map embeddings to 10 classes (without an act layer)
-python run_model.py --shuffle --scheduler --epochs 15 --batch_size 128 --save_interval 5  --weight weights_ssl/model-100.pt --ssl --linear_probe
+# -- test (classification)
+python run_model.py --batch_size 64 --weight sup/weights/model-50.pt --sup --test
 
-# test (with linear probe)
-python run_model.py --batch_size 128 --weight weights_ssl_linear_probe/model-15.pt --ssl --test
 
-# train supervised learning
-python run_model.py --shuffle --scheduler --epochs 50 --batch_size 64 --save_interval 5  --sup --train
+# -- ssl (encoder from supervised learning)
+# -- train encoder
+python run_model.py --shuffle --scheduler --epochs 300 --batch_size 1024 --save_interval 5 --ssl --train
 
-# test
-python run_model.py --batch_size 64 --weight weights_supervised/model-50.pt --sup --test
+# -- train linear probe (SSL -> SL)
+python run_model.py --shuffle --scheduler --epochs 15 --batch_size 128 --save_interval 5 --weight ssl/weights/model-300.pt --ssl --linear_probe
+
+# -- test (classification)
+python run_model.py --batch_size 128 --weight ssl_lp/weights/model-15.pt --ssl --test
+
+
+# -- ssl (vit)
+# -- train encoder
+python run_model.py --shuffle --scheduler --epochs 300 --batch_size 1024 --save_interval 5 --ssl --vit --train
+
+# -- train linear probe (SSL -> SL)
+python run_model.py --shuffle --scheduler --epochs 15 --batch_size 128 --save_interval 5 --weight ssl_vit/weights/model-300.pt --ssl --vit --linear_probe
+
+# -- test (classification)
+python run_model.py --batch_size 128 --weight ssl_vit_lp/weights/model-15.pt --ssl --vit --test
+
+
+# -- visualization
+python tsne_plot.py
+python umap_plot.py
