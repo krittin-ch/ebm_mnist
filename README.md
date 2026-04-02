@@ -53,8 +53,8 @@ This repository explores how representations learned by EBMs evolve under:
 ## ⚙️ Installation
 
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
+git clone git@github.com:krittin-ch/ebm_mnist.git
+cd ebm_mist
 
 pip install -r requirements.txt
 ```
@@ -71,50 +71,11 @@ data/MNIST/raw/
 
 ---
 
-## 🚀 Training
-
-### Supervised
-
-```bash
-python run_model.py --mode sup
-```
-
----
-
-### Self-Supervised (CNN)
-
-```bash
-python run_model.py --mode ssl
-```
-
----
-
-### Self-Supervised (Vision Transformer)
-
-```bash
-python run_model.py --mode ssl_vit
-```
-
----
-
-### Linear Probing
-
-```bash
-python run_model.py --mode ssl_lp
-python run_model.py --mode ssl_vit_lp
-```
-
----
-
 ## 🧠 Model Details
 
 ### Energy-Based Model
 
-The model learns an energy function:
-
-[
-E(x)
-]
+The model learns an energy function.
 
 Training encourages:
 
@@ -177,13 +138,13 @@ Over time:
   </tr>
   <tr>
     <td align="center">
-      <img src="sup/tsne_animation.gif" style="width:100%; max-height:250px; object-fit:contain;">
+      <img src="sup/tsne_animation.gif" style="width:100%; height:220px; object-fit:contain;">
     </td>
     <td align="center">
-      <img src="ssl/tsne_animation.gif" style="width:100%; max-height:250px; object-fit:contain;">
+      <img src="ssl/tsne_animation.gif" style="width:100%; height:220px; object-fit:contain;">
     </td>
     <td align="center">
-      <img src="ssl_vit/tsne_animation.gif" style="width:100%; max-height:250px; object-fit:contain;">
+      <img src="ssl_vit/tsne_animation.gif" style="width:100%; height:220px; object-fit:contain;">
     </td>
   </tr>
 </table>
@@ -200,13 +161,13 @@ Over time:
   </tr>
   <tr>
     <td align="center">
-      <img src="sup/umap_animation.gif" style="width:100%; max-height:250px; object-fit:contain;">
+      <img src="sup/umap_animation.gif" style="width:100%; height:220px; object-fit:contain;">
     </td>
     <td align="center">
-      <img src="ssl/umap_animation.gif" style="width:100%; max-height:250px; object-fit:contain;">
+      <img src="ssl/umap_animation.gif" style="width:100%; height:220px; object-fit:contain;">
     </td>
     <td align="center">
-      <img src="ssl_vit/umap_animation.gif" style="width:100%; max-height:250px; object-fit:contain;">
+      <img src="ssl_vit/umap_animation.gif" style="width:100%; height:220px; object-fit:contain;">
     </td>
   </tr>
 </table>

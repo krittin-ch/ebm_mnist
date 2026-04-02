@@ -96,8 +96,8 @@ def main():
     test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False)
 
     # -- mode check
-    if not (args.train or args.test or args.linear_probe):
-        raise ValueError("Please select `--train`, `--linear_probe`, or `--test`")
+    if not (args.train or args.test):
+        raise ValueError("Please select `--train` or `--test`")
 
     # -- model setup
     act_layer = nn.ReLU
@@ -161,7 +161,7 @@ def main():
             )
 
         # -- linear probe training
-        if args.linear_probe:
+        if args.mode == "ssl_lp" or args.mode == "ssl_vit_lp":
             if not os.path.exists(args.weight):
                 raise ValueError(f"The path `{args.weight}` does not exist.")
 
