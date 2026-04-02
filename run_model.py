@@ -18,10 +18,11 @@ def parse_config():
     parser = argparse.ArgumentParser(description="Training energy-based model")
 
     # -- training mode
-    parser.add_argument("--ssl", action="store_true", help="activate SSL mode")
-    parser.add_argument("--vit", action="store_true", help="activate ViT for SSL")
     parser.add_argument(
-        "--sup", action="store_true", help="activate supervised learning mode"
+        "--mode",
+        type=str,
+        default=None,
+        help="sup - supervised learning, ssl - self-supervised learning, ssl_vit - ssl with vision transformer",
     )
 
     # -- train/test selection
@@ -101,7 +102,7 @@ def main():
     # -- model setup
     act_layer = nn.ReLU
 
-    if args.ssl:
+    if args.mode == "ssl" or args.mode == "ssl_vit":
         # -- SSL models
         encoder = (
             ViT(
@@ -118,7 +119,7 @@ def main():
                 dropout=0.0,
                 emb_dropout=0.0,
             )
-            if args.vit
+            if args.mode == "ssl_vit"
             else Backbone()
         )
         target_model = (
@@ -136,13 +137,13 @@ def main():
                 dropout=0.0,
                 emb_dropout=0.0,
             )
-            if args.vit
+            if args.mode == "ssl_vit"
             else Backbone()
         )
         target_model.load_state_dict(encoder.state_dict())
 
         # -- adding probe (final supervised learning)
-        linear_probe = LinearProbe(input_dim=1024 if args.vit else 64)
+        linear_probe = LinearProbe(input_dim=1024 if args.mode == "ssl_vit" else 64)
 
         if args.train:
             train_ssl(
@@ -154,7 +155,7 @@ def main():
                 device=device,
                 transform=mnist_transform,
                 epochs=args.epochs,
-                save_path="ssl_vit" if args.vit else "ssl",
+                save_path="ssl_vit" if args.mode == "ssl_vit" else "ssl",
                 save_interval=args.save_interval,
                 scheduler=args.scheduler,
             )
@@ -175,7 +176,7 @@ def main():
                 loss_func=nn.CrossEntropyLoss(),
                 device=device,
                 epochs=args.epochs,
-                save_path="ssl_vit_lp" if args.vit else "ssl_lp",
+                save_path="ssl_vit_lp" if args.mode == "ssl_vit" else "ssl_lp",
                 save_interval=args.save_interval,
                 scheduler=args.scheduler,
             )
@@ -196,7 +197,7 @@ def main():
                 device=device,
             )
 
-    if args.sup:
+    if args.mode == "sup":
         # -- supervised models
         encoder = Backbone(act_layer=act_layer)
         classifier = ClassificationHead(act_layer=act_layer)

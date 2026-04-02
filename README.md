@@ -169,8 +169,6 @@ Over time:
 
 ### t-SNE
 
-### t-SNE
-
 <table style="width: 100%; table-layout: fixed;">
   <tr>
     <th>Supervised</th>

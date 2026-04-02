@@ -231,4 +231,4 @@ if __name__ == "__main__":
     main(animation=True, model_type="ssl", duration=5)
 
     # main(animation=False, model_type="sup", weight="model-50.pt")
-    # main(animation=True, model_type="sup", duration=5)
+    main(animation=True, model_type="sup", duration=5)

@@ -72,7 +72,7 @@ def extract_embeddings(model, loader):
 # -----------------------------
 # Main function
 # -----------------------------
-def main(animation=False, model_type="ssl", weight=None, interval=1000):
+def main(animation=False, model_type="ssl", weight=None, duration=5):
     # Prepare MNIST test set
     transform = transforms.Compose([transforms.ToTensor()])
     test_data = datasets.MNIST(
@@ -228,10 +228,13 @@ def main(animation=False, model_type="ssl", weight=None, interval=1000):
             title_text.set_text(f"t-SNE Embeddings ({weight_files[frame]})")
             return [s[0] for s in scatters] + [title_text]
 
+        num_frames = len(all_emb_2d)
+        interval = (duration * 1000) / num_frames
+        fps = num_frames / duration
+
         anim = FuncAnimation(
             fig, update, frames=len(all_emb_2d), interval=interval, blit=True
         )
-        fps = int(1000 / interval)
         anim_path = os.path.join(model_type, "tsne_animation.gif")
         anim.save(anim_path, writer=PillowWriter(fps=fps))
         print(f"Animation saved to {anim_path}")
@@ -241,11 +244,11 @@ def main(animation=False, model_type="ssl", weight=None, interval=1000):
 # Run
 # -----------------------------
 if __name__ == "__main__":
-    main(animation=False, model_type="ssl_vit", weight="model-300.pt")
-    main(animation=True, model_type="ssl_vit", interval=200)
+    # main(animation=False, model_type="ssl_vit", weight="model-300.pt")
+    main(animation=True, model_type="ssl_vit", duration=5)
 
-    main(animation=False, model_type="ssl", weight="model-300.pt")
-    main(animation=True, model_type="ssl", interval=200)
+    # main(animation=False, model_type="ssl", weight="model-300.pt")
+    main(animation=True, model_type="ssl", duration=5)
 
-    main(animation=False, model_type="sup", weight="model-50.pt")
-    main(animation=True, model_type="sup", interval=200)
+    # main(animation=False, model_type="sup", weight="model-50.pt")
+    main(animation=True, model_type="sup", duration=5)
