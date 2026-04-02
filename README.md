@@ -10,7 +10,7 @@ This repository implements **Energy-Based Models (EBMs)** on the **MNIST dataset
 
 ---
 
-## 📌 Overview
+## Overview
 
 Energy-Based Models learn a function ( E(x) ) that assigns:
 
@@ -27,7 +27,7 @@ This repository explores how representations learned by EBMs evolve under:
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 .
@@ -50,18 +50,7 @@ This repository explores how representations learned by EBMs evolve under:
 
 ---
 
-## ⚙️ Installation
-
-```bash
-git clone git@github.com:krittin-ch/ebm_mnist.git
-cd ebm_mist
-
-pip install -r requirements.txt
-```
-
----
-
-## 📊 Dataset
+## Dataset
 
 The project uses **MNIST**, stored in:
 
@@ -71,7 +60,7 @@ data/MNIST/raw/
 
 ---
 
-## 🧠 Model Details
+## Model Details
 
 ### Energy-Based Model
 
@@ -109,7 +98,7 @@ Used to compare representation learning against CNN-based EBMs.
 
 ---
 
-## 📈 Representation Visualization
+## Representation Visualization
 
 The repository tracks how feature representations evolve during training using:
 
@@ -126,7 +115,7 @@ Over time:
 
 ---
 
-## 🎞️ Visual Results
+## Visual Results
 
 ### t-SNE
 
@@ -174,7 +163,7 @@ Over time:
 
 ---
 
-## 📊 Outputs
+## Outputs
 
 Each experiment produces:
 
@@ -185,7 +174,21 @@ Each experiment produces:
 
 ---
 
-## 🧾 Summary
+## Results
+
+<div align="center">
+
+| Method       | Accuracy |
+|:------------:|:--------:|
+| Supervised   | 94.09%   |
+| SSL (CNN)    | 54.53%   |
+| SSL (ViT)    | **95.09%**   |
+
+</div>
+
+---
+
+## Summary
 
 This project demonstrates:
 
