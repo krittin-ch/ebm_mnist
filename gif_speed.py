@@ -15,7 +15,7 @@ for file_loc in [
     frames = []
     durations = []
 
-    # Extract frames and durations
+    # -- extract frames and durations
     try:
         while True:
             frames.append(gif.copy())
@@ -24,16 +24,12 @@ for file_loc in [
     except EOFError:
         pass
 
-    # Current total duration (ms)
     total_duration = sum(durations)
 
-    # Scale factor to make it 5 seconds (5000 ms)
     scale = sec * 1000 / total_duration
-
-    # Adjust durations
     new_durations = [int(d * scale) for d in durations]
 
-    # Save new GIF
+    # -- save new GIF
     frames[0].save(
         file_loc,
         save_all=True,

@@ -2,9 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-"""Loss function can be obtained from torch.nn or created as an separated function.
-I integrated with the backbone for my own convenience."""
-
 
 class Backbone(nn.Module):
     def __init__(self, act_layer=nn.ReLU):

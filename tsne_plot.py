@@ -11,14 +11,11 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 
 from modules import Backbone
-from vit import ViT  # SSL ViT model
+from vit import ViT
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-# -----------------------------
-# Function to load a model
-# -----------------------------
 def load_model(weight_path, model_type="ssl"):
     if model_type == "ssl_vit":
         model = ViT(
@@ -46,9 +43,6 @@ def load_model(weight_path, model_type="ssl"):
     return model
 
 
-# -----------------------------
-# Extract embeddings
-# -----------------------------
 def extract_embeddings(model, loader):
     embeddings = []
     labels = []
@@ -69,9 +63,6 @@ def extract_embeddings(model, loader):
     return embeddings, labels
 
 
-# -----------------------------
-# Main function
-# -----------------------------
 def main(animation=False, model_type="ssl", weight=None, duration=5):
     # Prepare MNIST test set
     transform = transforms.Compose([transforms.ToTensor()])
@@ -80,9 +71,7 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
     )
     test_loader = DataLoader(test_data, batch_size=256, shuffle=False)
 
-    # -----------------------------
-    # Single model mode
-    # -----------------------------
+    # -- single model mode
     if not animation:
         if weight is None:
             raise ValueError("Weight must be provided")
@@ -91,7 +80,7 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
         model = load_model(weight_path, model_type)
         embeddings, labels = extract_embeddings(model, test_loader)
 
-        # t-SNE
+        # -- t-SNE
         tsne = TSNE(
             n_components=2,
             perplexity=30,
@@ -101,7 +90,7 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
         )
         emb_2d = tsne.fit_transform(embeddings)
 
-        # Modern plot
+        # -- plot
         fig, ax = plt.subplots(figsize=(9, 7))
         cmap = plt.get_cmap("tab10")
         unique_labels = np.unique(labels)
@@ -140,9 +129,7 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
         plt.savefig(os.path.join(model_type, f"tsne_{weight}.png"), dpi=300)
         plt.close()
 
-    # -----------------------------
-    # Animation mode
-    # -----------------------------
+    # -- animation mode
     else:
         folder_path = f"{model_type}/weights"
         weight_files = [f for f in os.listdir(folder_path) if f.endswith(".pt")]
@@ -175,7 +162,7 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
             if all_labels is None:
                 all_labels = labels
 
-        # ---- Animation plot (same style) ----
+        # -- animation plot
         fig, ax = plt.subplots(figsize=(9, 7))
         cmap = plt.get_cmap("tab10")
         unique_labels = np.unique(all_labels)
@@ -213,7 +200,7 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
 
         plt.subplots_adjust(right=0.8)
 
-        # Fixed axes
+        # -- global axes
         all_x = np.concatenate([emb[:, 0] for emb in all_emb_2d])
         all_y = np.concatenate([emb[:, 1] for emb in all_emb_2d])
         x_pad = 0.05 * (all_x.max() - all_x.min())
@@ -240,9 +227,6 @@ def main(animation=False, model_type="ssl", weight=None, duration=5):
         print(f"Animation saved to {anim_path}")
 
 
-# -----------------------------
-# Run
-# -----------------------------
 if __name__ == "__main__":
     # main(animation=False, model_type="ssl_vit", weight="model-300.pt")
     main(animation=True, model_type="ssl_vit", duration=5)
