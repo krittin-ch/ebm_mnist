@@ -1,27 +1,25 @@
-# Energy-Based Model (EBM) with Linear Probing and Vision Transformer Variants
+# Energy-Based Model (EBM) with Linear Probing and Vision Transformer
 
 This repository implements **Energy-Based Models (EBMs)** on the **MNIST dataset**, covering:
 
 * Supervised learning
 * Self-supervised learning (SSL)
+* Vision Transformer (ViT)
 * Linear probing for representation evaluation
-* Vision Transformer (ViT) variants
 * Feature space visualization using **t-SNE** and **UMAP**
 
 ---
 
 ## Overview
 
-Energy-Based Models learn a function ( E(x) ) that assigns:
+Energy-Based Models learn a function that assigns:
 
-* **Low energy** → real (data) samples
-* **High energy** → invalid / negative samples
+* **Low energy** — real (data) samples
+* **High energy** — invalid / negative samples
 
 Instead of predicting labels directly, the model learns the **structure of the data distribution**.
 
 This repository explores how representations learned by EBMs evolve under:
-
-* Supervised training
 * Self-supervised training
 * Transformer-based architectures
 
@@ -46,16 +44,6 @@ This repository explores how representations learned by EBMs evolve under:
 ├── umap_plot.py           # UMAP visualization
 ├── scripts.sh             # Training scripts
 └── requirements.txt
-```
-
----
-
-## Dataset
-
-The project uses **MNIST**, stored in:
-
-```
-data/MNIST/raw/
 ```
 
 ---
